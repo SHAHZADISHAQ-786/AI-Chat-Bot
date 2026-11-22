@@ -12,6 +12,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+DEFAULT_BACKEND_URL = "https://ai-chat-agent.onrender.com"
+
 
 class BackendError(RuntimeError):
     def __init__(self, message: str, payload: object = None) -> None:
@@ -47,11 +49,10 @@ def sign_streamlit_identity(
     return hmac.new(secret.encode(), payload.encode(), hashlib.sha256).hexdigest()
 
 
-backend_url = configured_value("BACKEND_URL").rstrip("/")
+backend_url = (
+    configured_value("BACKEND_URL").strip().rstrip("/") or DEFAULT_BACKEND_URL
+)
 auth_secret = configured_value("STREAMLIT_AUTH_SECRET")
-if not backend_url:
-    st.error("Set BACKEND_URL in Streamlit Secrets to your FastAPI service URL.")
-    st.stop()
 parsed_backend_url = urlparse(backend_url)
 if parsed_backend_url.scheme != "https" and parsed_backend_url.hostname not in {
     "localhost",
