@@ -6,7 +6,6 @@ import httpx
 import streamlit as st
 from dotenv import load_dotenv
 
-from app.streamlit_auth import sign_streamlit_identity
 
 
 load_dotenv()
