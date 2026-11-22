@@ -1,3 +1,6 @@
+import hashlib
+import hmac
+import json
 import os
 import time
 from urllib.parse import urlparse
@@ -5,8 +8,6 @@ from urllib.parse import urlparse
 import httpx
 import streamlit as st
 from dotenv import load_dotenv
-
-from app.streamlit_auth import sign_streamlit_identity
 
 
 load_dotenv()
@@ -28,6 +29,22 @@ def configured_value(name: str) -> str:
         return st.secrets.get(name, os.getenv(name, ""))
     except FileNotFoundError:
         return os.getenv(name, "")
+
+
+def sign_streamlit_identity(
+    secret: str,
+    subject: str,
+    email: str,
+    name: str,
+    email_verified: str,
+    timestamp: str,
+) -> str:
+    payload = json.dumps(
+        [timestamp, subject, email, name, email_verified],
+        ensure_ascii=False,
+        separators=(",", ":"),
+    )
+    return hmac.new(secret.encode(), payload.encode(), hashlib.sha256).hexdigest()
 
 
 backend_url = configured_value("BACKEND_URL").rstrip("/")
